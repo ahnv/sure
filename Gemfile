@@ -37,6 +37,7 @@ gem "sidekiq-cron"
 gem "sidekiq-unique-jobs"
 
 # Monitoring
+gem "prometheus_exporter"
 gem "vernier"
 gem "rack-mini-profiler"
 gem "sentry-ruby"
