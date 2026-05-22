@@ -66,6 +66,18 @@ Sidekiq.configure_server do |config|
   rescue => e
     Rails.logger.error("[AutoSyncScheduler] Failed to initialize: #{e.message}")
   end
+
+  if ENV["PROMETHEUS_ENABLED"] == "1"
+    require "prometheus_exporter/instrumentation"
+    config.server_middleware do |chain|
+      chain.add PrometheusExporter::Instrumentation::Sidekiq
+    end
+    config.death_handlers << PrometheusExporter::Instrumentation::Sidekiq.death_handler
+    config.on(:startup) do
+      PrometheusExporter::Instrumentation::Process.start(type: "sidekiq", frequency: 30)
+      PrometheusExporter::Instrumentation::SidekiqQueue.start(all_queues: true)
+    end
+  end
 end
 
 Sidekiq.configure_client do |config|
